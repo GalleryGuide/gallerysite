@@ -17,9 +17,8 @@ class GalleryThemeNegotiator implements ThemeNegotiatorInterface {
     // Use this theme on a certain route.
     $edit_routes = array(
       'node.add',
-      'node.edit',
+      'entity.node.edit_form',
     );
-
     return in_array($route_match->getRouteName(), $edit_routes);
   }
 
