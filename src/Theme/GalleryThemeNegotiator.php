@@ -2,8 +2,8 @@
 
 namespace Drupal\gallerysite\Theme;
 
-use Drupal\Core\Theme\ThemeNegotiatorInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Theme\ThemeNegotiatorInterface;
 
 /**
  * Sets the active theme on editing pages.

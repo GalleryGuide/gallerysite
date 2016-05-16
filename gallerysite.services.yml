@@ -1,5 +1,5 @@
 services:
-  theme.negotiator.admin_theme:
+  theme.negotiator.galledit_theme:
     class: Drupal\gallerysite\Theme\GalleryThemeNegotiator
     arguments: ['@current_user', '@config.factory', '@entity.manager', '@router.admin_context']
     tags:
