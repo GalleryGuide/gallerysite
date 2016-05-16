@@ -1,0 +1,5 @@
+name: Gallery Guide Updates
+type: module
+description: Site updates for The Gallery Guide
+core: 8.x
+package: The Gallery Guide

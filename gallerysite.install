@@ -1,0 +1,51 @@
+<?php
+
+
+function gallerysite_update_8001() {
+
+  $gallery_ids = \Drupal::entityQuery('node')
+    ->condition('type', 'gallery')
+    ->execute();
+
+  foreach($gallery_ids as $nid) {
+    _gallerysite_website_protocol($nid, 'field_website');
+  }
+
+  $exhibition_ids = \Drupal::entityQuery('node')
+    ->condition('type', 'exhibition')
+    ->execute();
+
+  foreach($exhibition_ids as $nid) {
+    _gallerysite_website_protocol($nid, 'field_exhib_website');
+  }
+}
+
+/**
+ * If a node's website field does not include http, add it.
+ *
+ * @param int $nid
+ *   The node ID.
+ * @param string $field_name
+ *   The field name to update.
+ */
+function _gallerysite_website_protocol($nid, $field_name) {
+  $node = \Drupal\node\Entity\Node::load($nid);
+  
+  $website = $node->get($field_name)->getValue();
+  $current_url = $website[0]['uri'];
+
+  if (!empty($current_url) && substr($current_url, 0, 4) != 'http') {    
+    $website[0]['uri'] = 'http://' . $current_url;
+    $node->{$field_name} = $website;
+    $node->save();
+  }
+  
+  if (empty($current_url)) {
+    $website[0]['uri'] = '';
+    $node->{$field_name} = $website;
+    $node->save();
+  }
+  
+  print $current_url;
+  
+}

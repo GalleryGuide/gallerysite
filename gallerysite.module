@@ -1,0 +1,5 @@
+<?php
+
+function gallerysite_preprocess_page(&$vars) {
+  drupal_set_message(t('This is a pre-launch version of The Gallery Guide. Please go to <a href="http://www.thegalleryguide.co.uk">the live site</a> to log in or edit content.'));
+}
