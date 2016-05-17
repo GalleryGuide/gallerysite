@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Implements hook_preprocess_page().
+ */
 function gallerysite_preprocess_page(&$vars) {
   drupal_set_message(t('This is a pre-launch version of The Gallery Guide. Please go to <a href="http://www.thegalleryguide.co.uk">the live site</a> to log in or edit content.'));
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ */
+function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Remove revision log fields
+  $form['revision_information']['#type'] = 'hidden';
 }
