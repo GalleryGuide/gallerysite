@@ -12,5 +12,5 @@ function gallerysite_preprocess_page(&$vars) {
  */
 function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   // Remove revision log fields
-  $form['revision_information']['#type'] = 'hidden';
+  $form['revision_information']['#access'] = FALSE;
 }
