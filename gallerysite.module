@@ -16,6 +16,9 @@ function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 
   // Remove preview functionality.
   $form['actions']['preview']['#access'] = FALSE;
+
+  // Remove votes open/closed.
+  $form['field_rating']['#access'] = FALSE;
 }
 
 /**
