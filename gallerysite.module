@@ -32,6 +32,14 @@ function gallerysite_form_node_gallery_delete_form_alter(&$form, \Drupal\Core\Fo
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function gallerysite_form_contact_message_contact_us_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Remove preview option from contact form.
+  $form['actions']['preview']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function gallerysite_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   // Hide the content form options.
   $form['contact']['#type'] = 'hidden';
