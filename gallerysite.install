@@ -1,1 +1,27 @@
 <?php
+
+/**
+ * Update all websites which start with a slash.
+ */
+function gallerysite_update_8001() {
+  // Get all websites where the URL starts with a slash.
+  $db = \Drupal\Core\Database\Database::getConnection();
+  $query = $db->select('node__field_website', 'fw')
+    ->fields('fw', array('entity_id', 'field_website_uri'));
+  $query->condition('field_website_uri', "%" . $query->escapeLike('internal') . "%", 'LIKE');
+  $result = $query->execute()->fetchAll();
+    
+  foreach ($result as $row) {
+    $entity = \Drupal::entityTypeManager()->getStorage('node')->load($row->entity_id);
+
+    // Get the field value.
+    $website = $entity->get('field_website')->getValue();
+
+    // Fix the URL.
+    $website[0]['uri'] = str_replace('internal:/', 'http://', $row->field_website_uri);
+    $entity->set('field_website', $website);
+
+    // Save the node.
+    $entity->save();    
+  }
+}
