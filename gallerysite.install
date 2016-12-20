@@ -1,27 +1,38 @@
 <?php
 
-/**
- * Update all websites which start with a slash.
- */
-function gallerysite_update_8001() {
+function _gallerysite_replace_internal_url($table, $column, $field, $entity_type) {
   // Get all websites where the URL starts with a slash.
   $db = \Drupal\Core\Database\Database::getConnection();
-  $query = $db->select('node__field_website', 'fw')
-    ->fields('fw', array('entity_id', 'field_website_uri'));
-  $query->condition('field_website_uri', "%" . $query->escapeLike('internal') . "%", 'LIKE');
+  $query = $db->select($table, 'fw')
+    ->fields('fw', array('entity_id', $column));
+  $query->condition($column, "%" . $query->escapeLike('internal') . "%", 'LIKE');
   $result = $query->execute()->fetchAll();
-    
+
   foreach ($result as $row) {
-    $entity = \Drupal::entityTypeManager()->getStorage('node')->load($row->entity_id);
+    $entity = \Drupal::entityTypeManager()->getStorage($entity_type)->load($row->entity_id);
 
     // Get the field value.
-    $website = $entity->get('field_website')->getValue();
+    $website = $entity->get($field)->getValue();
 
     // Fix the URL.
-    $website[0]['uri'] = str_replace('internal:/', 'http://', $row->field_website_uri);
-    $entity->set('field_website', $website);
+    $website[0]['uri'] = str_replace('internal:/', 'http://', $row->{$column});
+    $entity->set($field, $website);
 
     // Save the node.
-    $entity->save();    
+    $entity->save();
   }
+}
+
+/**
+ * Fix all gallery websites which start with a slash.
+ */
+function gallerysite_update_8001() {
+  _gallerysite_replace_internal_url('node__field_website', 'field_website_uri', 'field_website', 'node');
+}
+
+/**
+ * Fix all exhibition websites which start with a slash.
+ */
+function gallerysite_update_8002() {
+  _gallerysite_replace_internal_url('node__field_exhib_website', 'field_exhib_website_uri', 'field_exhib_website', 'node');
 }
