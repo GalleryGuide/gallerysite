@@ -1,5 +1,7 @@
 <?php
 
+use Drupal\Core\Link;
+
 /**
  * Implements hook_form_FORM_ID_alter().
  */
@@ -56,6 +58,16 @@ function gallerysite_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 function gallerysite_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   // Hide the content form options.
   $form['contact']['#access'] = FALSE;
+  
+  $link_options = ['absolute' => TRUE];
+
+  $terms_nid = 6345;
+  $terms_link = Link::createFromRoute('Terms and Conditions', 'entity.node.canonical', ['node' => $terms_nid], $link_options);
+
+  $privacy_nid = 6343;
+  $privacy_link = Link::createFromRoute('Privacy Policy', 'entity.node.canonical', ['node' => $privacy_nid], $link_options);
+
+  $form['terms']['#markup'] = '<p>By creating an account you agree to the ' . $terms_link->toString() . ' and ' . $privacy_link->toString() . '.</p>';
 }
 
 function gallerysite_default_image() {
