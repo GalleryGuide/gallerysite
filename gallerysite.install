@@ -36,3 +36,21 @@ function gallerysite_update_8001() {
 function gallerysite_update_8002() {
   _gallerysite_replace_internal_url('node__field_exhib_website', 'field_exhib_website_uri', 'field_exhib_website', 'node');
 }
+
+/**
+ * Delete tags with no related content.
+ */
+function gallerysite_update_8003() {
+  $result = $query = db_query("SELECT tid, name FROM {taxonomy_term_field_data} WHERE vid = 'tags'
+ AND tid NOT IN (SELECT tid FROM {taxonomy_index}) 
+ AND tid NOT IN (SELECT field_tags_target_id FROM {taxonomy_term__field_tags}) 
+ AND tid NOT IN (SELECT field_tags_target_id FROM {node__field_tags})");
+
+  foreach ($result as $row) {
+    $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($row->tid);
+    $term->delete();
+
+    $message = 'Term ' . $row->tid . ' - ' . $row->name . ' deleted';
+    \Drupal::logger('gallerysite')->notice($message);
+  }
+}
