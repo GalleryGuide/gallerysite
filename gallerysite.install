@@ -46,11 +46,15 @@ function gallerysite_update_8003() {
  AND tid NOT IN (SELECT field_tags_target_id FROM {taxonomy_term__field_tags}) 
  AND tid NOT IN (SELECT field_tags_target_id FROM {node__field_tags})");
 
+  $count = 0;
   foreach ($result as $row) {
+    $count++;
     $term = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->load($row->tid);
     $term->delete();
 
     $message = 'Term ' . $row->tid . ' - ' . $row->name . ' deleted';
     \Drupal::logger('gallerysite')->notice($message);
   }
+  
+  drupal_set_message($count . ' tags deleted');
 }
