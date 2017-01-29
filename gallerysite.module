@@ -84,3 +84,26 @@ function gallerysite_default_image() {
 
   
 }
+
+/**
+ * Implements hook_cron().
+ */
+function gallerysite_cron() {
+  // Get all promoted exhibitions which have already finished.
+  $date = date('Y-m-d', REQUEST_TIME);
+  $query = \Drupal::entityQuery('node')
+    ->condition('type', 'exhibition')
+    ->condition('status', 1)
+    ->condition('promote', 1)
+    ->condition('field_date_to.value', $date, '<');
+  
+  $nids = $query->execute();
+  
+  // Unpromote the nodes.
+  $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+  foreach ($nodes as $node) {
+    
+    $node->set('promote', 0);
+    $node->save();
+  }
+}
