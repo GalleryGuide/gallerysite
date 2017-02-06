@@ -102,8 +102,17 @@ function gallerysite_cron() {
   // Unpromote the nodes.
   $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
   foreach ($nodes as $node) {
-    
     $node->set('promote', 0);
     $node->save();
+  }
+  
+  // Truncate tables that grow too large.
+  $connection = \Drupal::database();
+  $tables = array(
+    'cache_render', 
+    'cache_dynamic_page_cache',
+  );
+  foreach ($tables as $table) {
+    $connection->delete($table)->execute();
   }
 }
