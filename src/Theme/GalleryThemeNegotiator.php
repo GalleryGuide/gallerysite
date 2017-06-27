@@ -14,10 +14,12 @@ class GalleryThemeNegotiator implements ThemeNegotiatorInterface {
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
+    
     // Use this theme on a certain route.
     $edit_routes = array(
       'node.add',
       'entity.node.edit_form',
+      'entity.taxonomy_term.edit_form',
     );
     return in_array($route_match->getRouteName(), $edit_routes);
   }
