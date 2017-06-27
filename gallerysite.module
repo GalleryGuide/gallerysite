@@ -6,12 +6,34 @@ use Drupal\Core\Link;
  * Implements hook_form_FORM_ID_alter().
  */
 function gallerysite_form_taxonomy_term_artists_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Redirect to the term view page after editing.
+  $form['actions']['submit']['#submit'][] = 'gallerysite_term_submit';
 
   // Remove votes open/closed.
   $form['field_rating']['#access'] = FALSE;
 
   // Remove relations section.
   $form['relations']['#access'] = FALSE;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function gallerysite_form_taxonomy_term_tags_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Redirect to the term view page after editing.
+  $form['actions']['submit']['#submit'][] = 'gallerysite_term_submit';
+}
+
+/**
+ * Submit handler for taxonomy terms.
+ *
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ */
+function gallerysite_term_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+  // Redirect to the term view page after editing.
+  $tid = $form['tid']['#value'];
+  $form_state->setRedirect('entity.taxonomy_term.canonical', ['taxonomy_term' => $tid]);
 }
 
 /**
