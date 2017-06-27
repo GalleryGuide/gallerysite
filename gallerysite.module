@@ -40,6 +40,9 @@ function gallerysite_term_submit(&$form, \Drupal\Core\Form\FormStateInterface $f
  * Implements hook_form_FORM_ID_alter().
  */
 function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $form['artists']['widget']['add_more']['#value'] = t('Add another artist');
+  $form['tags']['widget']['add_more']['#value'] = t('Add another tag');
+  
   // Remove revision log fields
   $form['revision_information']['#access'] = FALSE;
 
