@@ -26,6 +26,9 @@ function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 
   // Remove votes open/closed.
   $form['field_rating']['#access'] = FALSE;
+  
+  // Restrict access to metatag.
+  $form['field_metatags']['#access'] = \Drupal::currentUser()->hasPermission('administer meta tags');
 }
 
 /**
