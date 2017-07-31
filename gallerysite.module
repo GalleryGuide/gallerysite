@@ -54,13 +54,18 @@ function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInt
   
   // Restrict access to metatag.
   $form['field_metatags']['#access'] = \Drupal::currentUser()->hasPermission('administer meta tags');
+
+  // Add a class if the address has no default value.
+  if (!empty($form['field_address']) && empty($form['field_address']['widget'][0]['address']['#default_value']['locality'])) {
+    $form['field_address']['#attributes']['class'][] = 'field--widget-address-blank';
+  }
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function gallerysite_form_node_gallery_delete_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // Prevent deletion if the gallery has any exhibitions.
+  // TODO: Prevent deletion if the gallery has any exhibitions.
 
 }
 
