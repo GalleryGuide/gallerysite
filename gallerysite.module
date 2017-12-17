@@ -155,7 +155,8 @@ function gallerysite_cron() {
  */
 function views_natural_sort_views_query_alter($view, $query) {
   // make sure we're altering the correct view
-  if ($view->storage->get('id') === 'galleries_a_z' && $view->current_display === 'page_1') {
+  $view_id = $view->storage->get('id');
+  if (($view_id == 'galleries_a_z' || $view_id == 'exhibitions_a_z') && $view->current_display == 'page_1') {
     $definition = [
       'table' => 'views_natural_sort',
       'field' => 'eid',
