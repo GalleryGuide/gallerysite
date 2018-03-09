@@ -71,6 +71,13 @@ function gallerysite_form_node_gallery_delete_form_alter(&$form, \Drupal\Core\Fo
 }
 
 /**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function gallerysite_node_insert(Drupal\Core\Entity\EntityInterface $entity) {
+  drupal_set_message(t('Your listing has been created, and is awaiting moderation. Our team will publish it as soon as possible.'));
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function gallerysite_form_contact_message_contact_us_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
