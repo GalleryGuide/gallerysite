@@ -1,6 +1,6 @@
 services:
   theme.negotiator.galledit_theme:
     class: Drupal\gallerysite\Theme\GalleryThemeNegotiator
-    arguments: ['@current_user', '@config.factory', '@entity.manager', '@router.admin_context']
+    arguments: ['@current_user', '@config.factory', '@entity_type.manager', '@router.admin_context']
     tags:
       - { name: theme_negotiator, priority: 1000 }

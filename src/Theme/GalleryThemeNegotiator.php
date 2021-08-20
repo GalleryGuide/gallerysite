@@ -14,7 +14,7 @@ class GalleryThemeNegotiator implements ThemeNegotiatorInterface {
    * {@inheritdoc}
    */
   public function applies(RouteMatchInterface $route_match) {
-    
+
     // Use this theme on a certain route.
     $edit_routes = array(
       'node.add',

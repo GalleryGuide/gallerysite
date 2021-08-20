@@ -1,8 +1,10 @@
 <?php
 
+use Drupal\Core\Messenger\MessengerInterface as MessengerInterface;
+
 function _gallerysite_replace_internal_url($table, $column, $field, $entity_type) {
   // Get all websites where the URL starts with a slash.
-  $db = \Drupal\Core\Database\Database::getConnection();
+  $db = \Drupal::database();
   $query = $db->select($table, 'fw')
     ->fields('fw', array('entity_id', $column));
   $query->condition($column, "%" . $query->escapeLike('internal') . "%", 'LIKE');
@@ -41,9 +43,10 @@ function gallerysite_update_8002() {
  * Delete tags with no related content.
  */
 function gallerysite_update_8003() {
-  $result = $query = db_query("SELECT tid, name FROM {taxonomy_term_field_data} WHERE vid = 'tags'
- AND tid NOT IN (SELECT tid FROM {taxonomy_index}) 
- AND tid NOT IN (SELECT field_tags_target_id FROM {taxonomy_term__field_tags}) 
+  $connection = \Drupal::database();
+  $result = $query = $connection->query("SELECT tid, name FROM {taxonomy_term_field_data} WHERE vid = 'tags'
+ AND tid NOT IN (SELECT tid FROM {taxonomy_index})
+ AND tid NOT IN (SELECT field_tags_target_id FROM {taxonomy_term__field_tags})
  AND tid NOT IN (SELECT field_tags_target_id FROM {node__field_tags})");
 
   $count = 0;
@@ -55,6 +58,6 @@ function gallerysite_update_8003() {
     $message = 'Term ' . $row->tid . ' - ' . $row->name . ' deleted';
     \Drupal::logger('gallerysite')->notice($message);
   }
-  
-  drupal_set_message($count . ' tags deleted');
+
+  \Drupal::messenger()->addMessage($count . ' tags deleted');
 }

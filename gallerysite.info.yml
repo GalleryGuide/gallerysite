@@ -1,5 +1,5 @@
-name: Gallery Guide Updates
+name: Gallery Guide Site Module
 type: module
-description: Site updates for The Gallery Guide
-core: 8.x
+description: Site tweaks and updates for The Gallery Guide
+core_version_requirement: ^8.8 || ^9
 package: The Gallery Guide

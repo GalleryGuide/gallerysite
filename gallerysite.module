@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Core\Link;
+use Drupal\Core\Messenger\MessengerInterface;
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -40,9 +41,11 @@ function gallerysite_term_submit(&$form, \Drupal\Core\Form\FormStateInterface $f
  * Implements hook_form_FORM_ID_alter().
  */
 function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  $user = \Drupal::currentUser();
+
   $form['artists']['widget']['add_more']['#value'] = t('Add another artist');
   $form['tags']['widget']['add_more']['#value'] = t('Add another tag');
-  
+
   // Hide revision log fields
   $form['revision']['#access'] = FALSE;
   $form['revision_log']['#access'] = FALSE;
@@ -52,29 +55,79 @@ function gallerysite_form_node_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 
   // Remove votes open/closed.
   $form['field_rating']['#access'] = FALSE;
-  
+
   // Restrict access to metatag.
-  $form['field_metatags']['#access'] = \Drupal::currentUser()->hasPermission('administer meta tags');
+  $form['field_metatags']['#access'] = $user->hasPermission('administer meta tags');
 
   // Add a class if the address has no default value.
   if (!empty($form['field_address']) && empty($form['field_address']['widget'][0]['address']['#default_value']['locality'])) {
     $form['field_address']['#attributes']['class'][] = 'field--widget-address-blank';
   }
+
+  // If the user already has published content, set the node as published by default.
+  if (gallerysite_has_content($user)) {
+    $form['status']['widget']['value']['#default_value'] = TRUE;
+  }
+
+}
+
+/**
+ * Check if a user has published content.
+ *
+ * @param \Drupal\Core\Session\AccountProxy $user
+ *   The user.
+ *
+ * @return bool
+ *   TRUE if the user has published content.
+ */
+function gallerysite_has_content($user) {
+  $ids = \Drupal::entityQuery('node')
+    ->condition('uid', $user->id())
+    ->condition('status', 1)
+    ->execute();
+  return !empty($ids);
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function gallerysite_form_node_gallery_delete_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // TODO: Prevent deletion if the gallery has any exhibitions.
+  // Does this gallery have any exhibitions?
+  $build_info = $form_state->getBuildInfo();
+  $gallery = $build_info['callback_object']->getEntity();
+  $exhibitions = gallerysite_get_exhibitions($gallery);
+  if (!empty($exhibitions)) {
+    // Prevent deletion.
+    $form['actions']['submit']['#access'] = FALSE;
+    $form['description']['#access'] = FALSE;
+    \Drupal::messenger()->addError(t('Galleries with exhibitions cannot be deleted.'));
+  }
+}
 
+/**
+ * Get exhibitions for a gallery.
+ *
+ * @param \Drupal\node\Entity\Node $gallery
+ *   The gallery node.
+ *
+ * @return array
+ *   The node IDs of exhibitions at this gallery.
+ */
+function gallerysite_get_exhibitions($gallery) {
+  return \Drupal::entityQuery('node')
+    ->condition('type', 'exhibition')
+    ->condition('field_exhib_gallery', $gallery->id())
+    ->execute();
 }
 
 /**
  * Implements hook_ENTITY_TYPE_insert().
  */
 function gallerysite_node_insert(Drupal\Core\Entity\EntityInterface $entity) {
-  drupal_set_message(t('Your listing has been created, and is awaiting moderation. Our team will publish it as soon as possible.'));
+  $published = $entity->isPublished();
+  if (!$published) {
+    \Drupal::messenger()->addMessage(t('Your listing has been created, and is awaiting moderation. Our team will publish it as soon as possible.'));
+  }
 }
 
 /**
@@ -99,7 +152,7 @@ function gallerysite_form_user_form_alter(&$form, \Drupal\Core\Form\FormStateInt
 function gallerysite_form_user_register_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
   // Hide the content form options.
   $form['contact']['#access'] = FALSE;
-  
+
   $link_options = ['absolute' => TRUE];
 
   $terms_nid = 6345;
@@ -114,16 +167,16 @@ function gallerysite_form_user_register_form_alter(&$form, \Drupal\Core\Form\For
 function gallerysite_default_image() {
 
   $connection = Database::getConnection();
-  
+
   $query = $connection->select('file_managed', 'fm')
     ->condition('uri', 'public://imagefield_default_images/anon_large.gif')
     ->fields('fm', array('fid', 'uuid'))
     ->execute();
-  
+
 //  $connection->update('file_managed', 'fm')
 //    ->condition('fid')
 
-  
+
 }
 
 /**
@@ -131,26 +184,26 @@ function gallerysite_default_image() {
  */
 function gallerysite_cron() {
   // Get all promoted exhibitions which have already finished.
-  $date = date('Y-m-d', REQUEST_TIME);
+  $date = date('Y-m-d', \Drupal::time()->getRequestTime());
   $query = \Drupal::entityQuery('node')
     ->condition('type', 'exhibition')
     ->condition('status', 1)
     ->condition('promote', 1)
     ->condition('field_date_to.value', $date, '<');
-  
+
   $nids = $query->execute();
-  
+
   // Unpromote the nodes.
   $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
   foreach ($nodes as $node) {
     $node->set('promote', 0);
     $node->save();
   }
-  
+
   // Truncate tables that grow too large.
   $connection = \Drupal::database();
   $tables = array(
-    'cache_render', 
+    'cache_render',
     'cache_dynamic_page_cache',
   );
   foreach ($tables as $table) {
@@ -202,7 +255,7 @@ function _recursively_alter_query_conditions(&$conditions) {
 
 /**
  * Actually alter the condition if relevant.
- */ 
+ */
 function _alter_query_condition(&$condition) {
   if (isset($condition['field']) && ($condition['field'] === 'SUBSTRING(node_field_data.title, 1, 1) = :node_field_data_title')) {
     $condition['field'] = "SUBSTRING(views_natural_sort.content, 1, 1) = :node_field_data_title";
