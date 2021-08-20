@@ -1,0 +1,6 @@
+{
+    "name": "galleryguide/gallerysite",
+    "description" : "Site module for The Gallery Guide",
+    "type": "drupal-module",
+    "license": "UNLICENSED"
+}
