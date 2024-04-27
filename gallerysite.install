@@ -61,3 +61,11 @@ function gallerysite_update_8003() {
 
   \Drupal::messenger()->addMessage($count . ' tags deleted');
 }
+
+/**
+ * Updates for Drupal 10.
+ */
+function gallerysite_update_10001() {
+  $installer = \Drupal::service('theme_installer');
+  $installer->install(['classy']);
+}
