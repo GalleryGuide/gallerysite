@@ -189,7 +189,8 @@ function gallerysite_cron() {
     ->condition('type', 'exhibition')
     ->condition('status', 1)
     ->condition('promote', 1)
-    ->condition('field_date_to.value', $date, '<');
+    ->condition('field_date_to.value', $date, '<')
+    ->accessCheck(FALSE);
 
   $nids = $query->execute();
 
